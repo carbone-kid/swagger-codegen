@@ -50,6 +50,8 @@ public class ApiClient {
   private String basePath = "{{basePath}}";
   private String privatekey = null;
   private int urlSignTtl = URLSign.DEFAULT_EXPIRE_TTL;
+  private int connectTimeOut = 30 * 1000;    // 30 seconds
+  private int readTimeOut = 15 * 60 * 1000;  // 15 minutes
 
   private Map<String, Authentication> authentications;
 
@@ -98,6 +100,22 @@ public class ApiClient {
 
   public void setUrlSignTtl(final int urlSignTtl) {
     this.urlSignTtl = urlSignTtl;
+  }
+
+  public int getConnectTimeOut() {
+    return this.connectTimeOut;
+  }
+
+  public void setConnectTimeOut(final int connectTimeOut) {
+    this.connectTimeOut = connectTimeOut;
+  }
+
+  public int getReadTimeOut() {
+    return this.readTimeOut;
+  }
+
+  public void setReadTimeOut(final int readTimeOut) {
+    this.readTimeOut = readTimeOut;
   }
 
   /**
@@ -530,6 +548,11 @@ public class ApiClient {
       final ClientConfig config = new DefaultClientConfig();
       config.getProperties().put(ClientConfig.PROPERTY_CHUNKED_ENCODING_SIZE, -1 /* default chunk size */);
       Client client = Client.create(config);
+
+      if (connectTimeOut > 0) 
+        client.setConnectTimeout(connectTimeOut);
+      if (readTimeOut > 0)
+        client.setReadTimeout(readTimeOut);
       if (debugging)
         client.addFilter(new LoggingFilter());
       hostMap.put(basePath, client);
